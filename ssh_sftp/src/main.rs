@@ -44,30 +44,27 @@ fn sftp_main (sftp_client:&mut sftp){
 
 }
 
-fn sftp_choice(userinput:&String, sftp_client:&mut sftp)-> i8
+fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
     {
-    let mut return_value:i8 = 0;
-    // if it returns a 0 then its correct
-    //anything else is either a error condition or a condition
     if userinput == "exit"{
         sftp_client.alive = false;
-        return return_value;
     }
     else if userinput == "ls"{  
-        return return_value;
     }
     else if userinput == "sw"{
         let invert:bool =sftp_client.server_selected;
         sftp_client.server_selected = !invert;
-        return return_value;
     }
     else{
-        return  return_value;
     }
 
 }
 
 
 fn main() {
-    println!("Hello, world!");
+    let mut sftp_client:sftp = sftp_build(String::from("192.168.1.166"),
+     String::from("blaa"),
+      String::from("bladsadsad"),
+      String::from( "blaa"));
+    sftp_main(&mut sftp_client);
 }
