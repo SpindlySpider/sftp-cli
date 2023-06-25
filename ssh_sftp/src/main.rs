@@ -60,10 +60,7 @@ fn server_output_files(files:&Vec<file_metadata>){
 
 
 }
-
-
-
-fn list_files(sftp_client:&sftp)-> file_metadata{
+fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
     //maybe just make this return a indivudal one for each type rather than trying to make a common file type
     //return vector of all files, can append a folder symbol if its a symbol 
     let mut files:Vec<file_metadata>;
@@ -75,13 +72,10 @@ fn list_files(sftp_client:&sftp)-> file_metadata{
         for i in 0..server_files.len(){
             let mut temp_metadata_file:file_metadata = file_metadata{
                 filepath: server_files[i].0,
-                filetype:server_files[i].1.file_type(),
-                size:server_files[i].1.size,
-                filestat:server_files[i].1
+                filestat:Some(server_files[i].1)
                 };
             files.push(temp_metadata_file);
         }
-
     }
     else{
         let file_path_list:ReadDir;
@@ -93,7 +87,6 @@ fn list_files(sftp_client:&sftp)-> file_metadata{
             file_path_list
         }
     }
-
     return files;
 }
 
