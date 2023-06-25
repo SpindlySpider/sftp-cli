@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, fs::ReadDir};
 
 use ssh2::{Sftp, Session, FileStat, FileType};
 pub struct sftp{
@@ -16,9 +16,10 @@ pub struct sftp{
 pub struct file_metadata{
     //used be able to pass filestat type to other functions
     // can add more detials to this area 
+
     filepath:PathBuf,
-    filetype:FileType,
     size:Option<u64>,
-    filestat:FileStat
+    filestat:Option<FileStat>,
+    file:Option<ReadDir>
 
 }
