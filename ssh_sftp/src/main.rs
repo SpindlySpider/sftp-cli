@@ -52,7 +52,7 @@ fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     return path;
 }
 
-fn server_output_files(files:&Vec<PathBuf,FileStat>){
+fn server_output_files(files:&Vec<file_metadata>){
     //used to output a string of all of the files
     //need to covnert filestat to a useable file
     let mut files_list:Vec<String>;
@@ -63,15 +63,25 @@ fn server_output_files(files:&Vec<PathBuf,FileStat>){
 
 
 
-fn list_files(sftp_client:&sftp)-> Vec<String> {
+fn list_files(sftp_client:&sftp)-> file_metadata{
     //maybe just make this return a indivudal one for each type rather than trying to make a common file type
     //return vector of all files, can append a folder symbol if its a symbol 
-    let files:Vec<(PathBuf, FileStat)>;
+    let mut files:Vec<file_metadata>;
     let current_dir:&Path = list_cwd_dir(sftp_client).as_path();
     if sftp_client.server_selected{
-        let files:Vec<(PathBuf, FileStat)>;
+        let server_files:Vec<(PathBuf, FileStat)>;
 
-        files = sftp_client.sftp.readdir(current_dir).unwrap();//this turns of path buff,file stat
+        server_files = sftp_client.sftp.readdir(current_dir).unwrap();//this turns of path buff,file stat
+        for i in 0..server_files.len(){
+            let mut temp_metadata_file:file_metadata = file_metadata{
+                filepath: server_files[i].0,
+                filetype:server_files[i].1.file_type(),
+                size:server_files[i].1.size,
+                filestat:server_files[i].1
+                };
+            files.push(temp_metadata_file);
+        }
+
     }
     else{
         let file_path_list:ReadDir;
