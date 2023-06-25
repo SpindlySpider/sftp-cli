@@ -1,5 +1,5 @@
 use ssh2::{Sftp, Session, FileStat};
-use std::{io::Read,net::TcpStream,fs,path::{Path, PathBuf},env};
+use std::{io::Read,net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 
 
 struct sftp{
@@ -13,6 +13,8 @@ struct sftp{
     server_selected:bool,
     sftp:Sftp
 }
+
+
 
 fn sftp_build(hostname:String,port:String,
     username:String,password:String)->sftp{
@@ -59,23 +61,24 @@ fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     return path;
 }
 
-fn list_files_remote(){
-    
-}
 
-fn list_files_client{
 
-    
-}
+
 
 fn list_files(sftp_client:&sftp)-> fs::ReadDir{
     let files:Vec<(PathBuf, FileStat)>;
     let current_dir:&Path = list_cwd_dir(sftp_client).as_path();
     if sftp_client.server_selected{
-    files = sftp_client.sftp.readdir(current_dir).unwrap();
+        let files:Vec<(PathBuf, FileStat)>;
+
+        files = sftp_client.sftp.readdir(current_dir).unwrap();//this turns of path buff,file stat
     }
     else{
-        files = fs::read_dir(current_dir).unwrap()    
+        let file_path_list:ReadDir;
+        file_path_list = fs::read_dir(current_dir).unwrap(); //returns pathbuff 
+        for i in 0..file_path_list.count(){
+            
+        }
     }
 
     return files;
