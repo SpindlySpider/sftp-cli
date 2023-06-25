@@ -1,5 +1,6 @@
 use ssh2::{Sftp, Session};
-use std::{io::{Read, self},net::{ TcpStream}};
+use std::{io::Read,net::TcpStream,fs,path::{Path, PathBuf},env};
+
 
 struct sftp{
     hostname:String,
@@ -10,6 +11,7 @@ struct sftp{
     session: Session,
     alive:bool,
     server_selected:bool,
+    sftp:Sftp
 }
 
 fn sftp_build(hostname:String,port:String,
@@ -24,12 +26,13 @@ fn sftp_build(hostname:String,port:String,
         let mut alive:bool = true;
         let mut server_selected:bool = true;
     
-        let sftp = session.sftp().unwrap();
+        let sftp:Sftp = session.sftp().unwrap();
 
-        let sftp_client:sftp = sftp { hostname: hostname, port: port
-            , host_port: host_port, username: username
-            , password: password,session:session,
-            alive:alive,server_selected:server_selected};
+        let sftp_client:sftp = sftp { hostname, port
+            , host_port, username
+            , password,session,
+            alive,server_selected,
+        sftp};
 
         return sftp_client;
 }
@@ -44,12 +47,30 @@ fn sftp_main (sftp_client:&mut sftp){
 
 }
 
+fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
+    let path:PathBuf;
+    if sftp_client.server_selected{
+    path = env::current_dir().unwrap();
+    }
+    else{
+        path = sftp_client.sftp.realpath(Path::new(".")).unwrap();
+    }
+
+    return path;
+}
+
+
 fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
     {
     if userinput == "exit"{
         sftp_client.alive = false;
     }
     else if userinput == "ls"{  
+    }
+    else if userinput =="dir"{
+        let path = list_cwd_dir(sftp_client);
+        let path_str:&str = path.to_str().unwrap();
+        println!("{}",path_str);
     }
     else if userinput == "sw"{
         let invert:bool =sftp_client.server_selected;
