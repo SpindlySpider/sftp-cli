@@ -1,4 +1,4 @@
-use ssh2::{Sftp, Session};
+use ssh2::{Sftp, Session, FileStat};
 use std::{io::Read,net::TcpStream,fs,path::{Path, PathBuf},env};
 
 
@@ -24,7 +24,7 @@ fn sftp_build(hostname:String,port:String,
         session.userauth_password(&username.clone(), &password.clone()).unwrap();
         assert!(session.authenticated());
         let mut alive:bool = true;
-        let mut server_selected:bool = true;
+        let mut server_selected:bool = false;
     
         let sftp:Sftp = session.sftp().unwrap();
 
@@ -50,20 +50,47 @@ fn sftp_main (sftp_client:&mut sftp){
 fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     let path:PathBuf;
     if sftp_client.server_selected{
-    path = env::current_dir().unwrap();
+        path = sftp_client.sftp.realpath(Path::new(".")).unwrap();
     }
     else{
-        path = sftp_client.sftp.realpath(Path::new(".")).unwrap();
+        path = env::current_dir().unwrap();
     }
 
     return path;
 }
 
+fn list_files_remote(){
+    
+}
+
+fn list_files_client{
+
+    
+}
+
+fn list_files(sftp_client:&sftp)-> fs::ReadDir{
+    let files:Vec<(PathBuf, FileStat)>;
+    let current_dir:&Path = list_cwd_dir(sftp_client).as_path();
+    if sftp_client.server_selected{
+    files = sftp_client.sftp.readdir(current_dir).unwrap();
+    }
+    else{
+        files = fs::read_dir(current_dir).unwrap()    
+    }
+
+    return files;
+}
+
 
 fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
+// could make this return a string it might make it a bit easier to 
+//read outputs when in flutter.
     {
     if userinput == "exit"{
         sftp_client.alive = false;
+    }
+    else if userinput =="cd"{
+
     }
     else if userinput == "ls"{  
     }
