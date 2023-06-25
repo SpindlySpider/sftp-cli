@@ -1,18 +1,9 @@
+mod structures;
+use structures::sftp;
+use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
 use std::{io::Read,net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 
-
-struct sftp{
-    hostname:String,
-    port:String,
-    host_port:String,
-    username:String,
-    password:String, //storing password here maybe a potentually bad idea
-    session: Session,
-    alive:bool,
-    server_selected:bool,
-    sftp:Sftp
-}
 
 
 
@@ -61,11 +52,20 @@ fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     return path;
 }
 
+fn server_output_files(files:&Vec<PathBuf,FileStat>){
+    //used to output a string of all of the files
+    //need to covnert filestat to a useable file
+    let mut files_list:Vec<String>;
 
 
 
+}
 
-fn list_files(sftp_client:&sftp)-> fs::ReadDir{
+
+
+fn list_files(sftp_client:&sftp)-> Vec<String> {
+    //maybe just make this return a indivudal one for each type rather than trying to make a common file type
+    //return vector of all files, can append a folder symbol if its a symbol 
     let files:Vec<(PathBuf, FileStat)>;
     let current_dir:&Path = list_cwd_dir(sftp_client).as_path();
     if sftp_client.server_selected{
@@ -75,9 +75,12 @@ fn list_files(sftp_client:&sftp)-> fs::ReadDir{
     }
     else{
         let file_path_list:ReadDir;
+        let file_status_list:FileStat;
         file_path_list = fs::read_dir(current_dir).unwrap(); //returns pathbuff 
+        //ugh need to the readdir indexable to be able to get filepath 
+        //then need to get filestat
         for i in 0..file_path_list.count(){
-            
+            file_path_list
         }
     }
 
