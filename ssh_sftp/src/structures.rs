@@ -20,6 +20,7 @@ pub struct file_metadata{
     filepath:PathBuf,
     size:Option<u64>,
     filestat:Option<FileStat>,
-    file:Option<ReadDir>
+    file:Option<ReadDir>,
+    filetype:Option<FileType>
 
 }

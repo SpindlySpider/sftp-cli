@@ -1,7 +1,9 @@
 mod structures;
+use ssh2::FileType;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
+use std::io::BufRead;
 use std::{io::Read,net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 
 
@@ -72,7 +74,10 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
         for i in 0..server_files.len(){
             let mut temp_metadata_file:file_metadata = file_metadata{
                 filepath: server_files[i].0,
-                filestat:Some(server_files[i].1)
+                filestat:Some(server_files[i].1),
+                size:None,
+                file:None,
+                filetype:None
                 };
             files.push(temp_metadata_file);
         }
@@ -83,9 +88,19 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
         file_path_list = fs::read_dir(current_dir).unwrap(); //returns pathbuff 
         //ugh need to the readdir indexable to be able to get filepath 
         //then need to get filestat
+
         for i in 0..file_path_list.count(){
-            file_path_list
-        }
+            let mut entry_dir:PathBuf = file_path_list.next().unwrap().path();//this can cause error if it iterates too many times lol
+            let entry_metadata:fs::Metadata = entry_dir.metadata().unwrap();
+            let mut entry_file_type:FileType = entry_metadata.file_type();
+            let mut temp_metadata_file:file_metadata = file_metadata{
+                filepath: entry_dir,//may  cause a error since its trying to convert entrydir->readdir
+                filetype:Some(entry_file_type),
+                filestat:None,
+                size:None,
+                file:None
+        };
+        files.push(temp_metadata_file);
     }
     return files;
 }
