@@ -17,10 +17,10 @@ pub struct file_metadata{
     //used be able to pass filestat type to other functions
     // can add more detials to this area 
 
-    filepath:PathBuf,
-    size:Option<u64>,
-    filestat:Option<FileStat>,
-    file:Option<ReadDir>,
-    filetype:Option<FileType>
+    pub filepath:PathBuf,
+    pub size:Option<u64>,
+    pub filestat:Option<FileStat>,
+    pub file:Option<ReadDir>,
+    pub filetype:Option<std::fs::FileType>
 
 }

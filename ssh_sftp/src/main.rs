@@ -1,9 +1,8 @@
 mod structures;
-use ssh2::FileType;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
-use std::io::BufRead;
+
 use std::{io::Read,net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 
 
@@ -65,16 +64,18 @@ fn server_output_files(files:&Vec<file_metadata>){
 fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
     //maybe just make this return a indivudal one for each type rather than trying to make a common file type
     //return vector of all files, can append a folder symbol if its a symbol 
-    let mut files:Vec<file_metadata>;
-    let current_dir:&Path = list_cwd_dir(sftp_client).as_path();
+    let mut files:Vec<file_metadata> = Vec::new();
+    let store_cwd_dir:PathBuf = list_cwd_dir(sftp_client);
+    let current_dir:&Path = store_cwd_dir.as_path();
+
     if sftp_client.server_selected{
         let server_files:Vec<(PathBuf, FileStat)>;
 
         server_files = sftp_client.sftp.readdir(current_dir).unwrap();//this turns of path buff,file stat
         for i in 0..server_files.len(){
             let mut temp_metadata_file:file_metadata = file_metadata{
-                filepath: server_files[i].0,
-                filestat:Some(server_files[i].1),
+                filepath: server_files[i].0.clone(),
+                filestat:Some(server_files[i].1.clone()),
                 size:None,
                 file:None,
                 filetype:None
@@ -83,27 +84,29 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
         }
     }
     else{
-        let file_path_list:ReadDir;
-        let file_status_list:FileStat;
-        file_path_list = fs::read_dir(current_dir).unwrap(); //returns pathbuff 
+        let file_path_list:ReadDir = fs::read_dir(current_dir).unwrap(); //returns pathbuff ;
         //ugh need to the readdir indexable to be able to get filepath 
         //then need to get filestat
-
-        for i in 0..file_path_list.count(){
-            let mut entry_dir:PathBuf = file_path_list.next().unwrap().path();//this can cause error if it iterates too many times lol
-            let entry_metadata:fs::Metadata = entry_dir.metadata().unwrap();
-            let mut entry_file_type:FileType = entry_metadata.file_type();
-            let mut temp_metadata_file:file_metadata = file_metadata{
-                filepath: entry_dir,//may  cause a error since its trying to convert entrydir->readdir
+        for entry_result in file_path_list{
+            let entry = entry_result.unwrap();
+            let entry_filepath = entry.path();
+            let entry_metadata = entry_filepath.metadata().unwrap();
+            let entry_file_type:std::fs::FileType = entry_metadata.file_type();
+            let temp_metadata_file:file_metadata = file_metadata{
+                filepath: entry_filepath,//may  cause a error since its trying to convert entrydir->pathbuf
                 filetype:Some(entry_file_type),
                 filestat:None,
                 size:None,
                 file:None
         };
+
+
         files.push(temp_metadata_file);
+    }
     }
     return files;
 }
+
 
 
 fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
@@ -140,3 +143,5 @@ fn main() {
       String::from( "blaa"));
     sftp_main(&mut sftp_client);
 }
+
+
