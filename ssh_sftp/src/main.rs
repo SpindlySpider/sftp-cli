@@ -3,7 +3,8 @@ use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
 
-use std::{io::Read,net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
+use std::fs::FileType;
+use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 
 
 
@@ -17,8 +18,8 @@ fn sftp_build(hostname:String,port:String,
         session.handshake().unwrap();
         session.userauth_password(&username.clone(), &password.clone()).unwrap();
         assert!(session.authenticated());
-        let mut alive:bool = true;
-        let mut server_selected:bool = false;
+        let alive:bool = true;
+        let server_selected:bool = false;
     
         let sftp:Sftp = session.sftp().unwrap();
 
@@ -53,10 +54,39 @@ fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     return path;
 }
 
-fn server_output_files(files:&Vec<file_metadata>){
+fn output_files_string(files:&Vec<file_metadata>)->Vec<String>{
     //used to output a string of all of the files
     //need to covnert filestat to a useable file
-    let mut files_list:Vec<String>;
+    let mut files_list:Vec<String> = Vec::new();
+    for entity in files{
+        if entity.filestat != None{//may cause error since it returns a option type
+            //if this is a server file 
+            let entity_option:Option<FileStat> = entity.filestat.clone();
+            let entity_stat:FileStat = entity_option.unwrap();
+            if entity_stat.is_dir(){
+                //if this is a dir 
+                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                files_list.push(dir_string);
+            }
+            else{
+                //this is a file or somthing else but not a dir
+                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                files_list.push(dir_string);
+            }
+        }
+        else{
+            let entity_stat:FileType = entity.filetype.unwrap();
+            if entity_stat.is_dir(){
+
+            }
+            else{
+                
+            }
+
+        }
+    }
+
+    return files_list;
 
 
 
@@ -73,7 +103,7 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
 
         server_files = sftp_client.sftp.readdir(current_dir).unwrap();//this turns of path buff,file stat
         for i in 0..server_files.len(){
-            let mut temp_metadata_file:file_metadata = file_metadata{
+            let temp_metadata_file:file_metadata = file_metadata{
                 filepath: server_files[i].0.clone(),
                 filestat:Some(server_files[i].1.clone()),
                 size:None,
@@ -99,8 +129,6 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
                 size:None,
                 file:None
         };
-
-
         files.push(temp_metadata_file);
     }
     }
