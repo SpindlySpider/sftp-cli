@@ -173,11 +173,13 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
 
 
 fn main() {
-    let mut sftp_client:sftp = sftp_build(String::from("192.168.1.166"),
-     String::from("blaa"),
-      String::from("bladsadsad"),
-      String::from( "blaa"));
+
+    let mut sftp_client:sftp = sftp_build(hostname,
+        port,
+        username,
+        password);
     sftp_main(&mut sftp_client);
 }
+
 
 
