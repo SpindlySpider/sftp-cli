@@ -150,7 +150,12 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
     else if userinput =="cd"{
 
     }
-    else if userinput == "ls"{  
+    else if userinput == "ls"{
+        let file_metadata = list_files(sftp_client);
+        let output_list:Vec<String> = output_files_string(&file_metadata, sftp_client);
+        for index in 0..output_list.len(){
+            println!("{}",output_list[index]);
+        } 
     }
     else if userinput =="dir"{
         let path = list_cwd_dir(sftp_client);
