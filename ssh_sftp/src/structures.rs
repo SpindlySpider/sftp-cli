@@ -10,7 +10,8 @@ pub struct sftp{
     pub session: Session,
     pub alive:bool,
     pub server_selected:bool,
-    pub sftp:Sftp
+    pub sftp:Sftp,
+    pub folder_marker:String
 }
 
 pub struct file_metadata{

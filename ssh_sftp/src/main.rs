@@ -20,6 +20,7 @@ fn sftp_build(hostname:String,port:String,
         assert!(session.authenticated());
         let alive:bool = true;
         let server_selected:bool = false;
+        let folder_marker:String = String::from("📁");
     
         let sftp:Sftp = session.sftp().unwrap();
 
@@ -27,7 +28,7 @@ fn sftp_build(hostname:String,port:String,
             , host_port, username
             , password,session,
             alive,server_selected,
-        sftp};
+        sftp,folder_marker};
 
         return sftp_client;
 }
@@ -54,7 +55,7 @@ fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
     return path;
 }
 
-fn output_files_string(files:&Vec<file_metadata>)->Vec<String>{
+fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>{
     //used to output a string of all of the files
     //need to covnert filestat to a useable file
     let mut files_list:Vec<String> = Vec::new();
@@ -65,7 +66,7 @@ fn output_files_string(files:&Vec<file_metadata>)->Vec<String>{
             let entity_stat:FileStat = entity_option.unwrap();
             if entity_stat.is_dir(){
                 //if this is a dir 
-                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,entity.filepath.display()));
                 files_list.push(dir_string);
             }
             else{
@@ -77,10 +78,12 @@ fn output_files_string(files:&Vec<file_metadata>)->Vec<String>{
         else{
             let entity_stat:FileType = entity.filetype.unwrap();
             if entity_stat.is_dir(){
-
+                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,entity.filepath.display()));
+                files_list.push(dir_string);
             }
             else{
-                
+                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                files_list.push(dir_string);
             }
 
         }
