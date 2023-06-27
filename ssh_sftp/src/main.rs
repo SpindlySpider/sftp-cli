@@ -5,8 +5,7 @@ use ssh2::{Sftp, Session, FileStat};
 
 use std::fs::FileType;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
-
-
+use rpassword;
 
 
 fn sftp_build(hostname:String,port:String,
@@ -35,8 +34,10 @@ fn sftp_build(hostname:String,port:String,
 
 fn sftp_main (sftp_client:&mut sftp){
     let mut input:String = String::new();
+    println!("connection established");
     while sftp_client.alive{
         std::io::stdin().read_line(&mut input).expect("failed to read input");
+        println!("read lines");
 
         sftp_choice(&input,sftp_client);
     }
@@ -144,13 +145,14 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter.
     {
-    if userinput == "exit"{
+    if userinput == &String::from("exit"){
         sftp_client.alive = false;
     }
     else if userinput =="cd"{
 
     }
-    else if userinput == "ls"{
+    else if userinput == &String::from("ls"){
+        println!("listing dir");
         let file_metadata = list_files(sftp_client);
         let output_list:Vec<String> = output_files_string(&file_metadata, sftp_client);
         for index in 0..output_list.len(){
@@ -173,10 +175,15 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
 
 
 fn main() {
+    let password = rpassword::prompt_password("[input password] ").unwrap();
+    let port = rpassword::prompt_password("[input port] ").unwrap();
 
-    let mut sftp_client:sftp = sftp_build(hostname,
-        port,
-        username,
+    println!("{},{}",password,port);
+
+
+    let mut sftp_client:sftp = sftp_build(String::from("192.168.1.166"),
+    port,
+    String::from("root"),
         password);
     sftp_main(&mut sftp_client);
 }
