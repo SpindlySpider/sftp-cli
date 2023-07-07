@@ -5,6 +5,7 @@ use ssh2::{Sftp, Session, FileStat};
 
 use std::fs::FileType;
 use std::io;
+use std::io::Split;
 use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
@@ -34,6 +35,15 @@ fn sftp_build(hostname:String,port:String,
 
         return sftp_client;
 }
+fn split_to_vec_string(raw_string:&str)->Vec<&str>{
+    let temp_str = raw_string.split(" ");
+    let mut return_vec:Vec<&str>;
+    for string in temp_str{
+        return_vec.push(string);
+    }
+    return return_vec;
+
+}
 
 fn sftp_main (sftp_client:&mut sftp){
     println!("connection established");
@@ -41,9 +51,10 @@ fn sftp_main (sftp_client:&mut sftp){
         let cwd:String = format!("{}{}", list_cwd_dir(sftp_client).display(),sftp_client.cli_leader);
         print!("{}",cwd);
         io::stdout().flush();
-        let mut input:String = String::new();
-        std::io::stdin().read_line(&mut input).expect("failed to read input");
-        input = input.trim().to_string();
+        let mut raw_input:String = String::new();
+        std::io::stdin().read_line(&mut raw_input).expect("failed to read input");
+        raw_input = raw_input.trim().to_string();
+        let input = split_to_vec_string(&raw_input);
         sftp_choice(&input,sftp_client);
 
     }
@@ -155,48 +166,48 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
 
 
 
-fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
+fn sftp_choice(userinput:Vec<&str>, sftp_client:&mut sftp)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter using c bindings.
     {
-    if userinput == "exit"{
+    if userinput[0] == "exit"{
         sftp_client.alive = false;
     }
-    else if userinput =="cd"{
+    else if userinput[0] =="cd"{
 
     }
-    else if userinput == "ls"{
+    else if userinput[0] == "ls"{
         let file_metadata = list_files(sftp_client);
         let output_list:Vec<String> = output_files_string(&file_metadata, sftp_client);
         for index in 0..output_list.len(){
             println!("{}",output_list[index]);
         } 
     }
-    else if userinput =="dir"{
+    else if userinput[0] =="dir"{
         let path = list_cwd_dir(sftp_client);
         let path_str:&str = path.to_str().unwrap();
         println!("{}",path_str);
     }
-    else if userinput == "sw"{
+    else if userinput[0] == "sw"{
         let invert:bool =sftp_client.server_selected;
         sftp_client.server_selected = !invert;
     }
-    else if userinput == "mkdir"{
+    else if userinput[0] == "mkdir"{
 
     }
-    else if userinput == "rmdir"{
+    else if userinput[0] == "rmdir"{
 
     }
-    else if userinput == "rm"{
+    else if userinput[0] == "rm"{
 
     }
-    else if userinput == "rename"{
+    else if userinput[0] == "rename"{
 
     }
-    else if userinput == "download"{
+    else if userinput[0] == "download"{
 
     }
-    else if userinput == "upload"{
+    else if userinput[0] == "upload"{
 
     }
     else{
