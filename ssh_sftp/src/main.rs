@@ -181,6 +181,24 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
         let invert:bool =sftp_client.server_selected;
         sftp_client.server_selected = !invert;
     }
+    else if userinput == "mkdir"{
+
+    }
+    else if userinput == "rmdir"{
+
+    }
+    else if userinput == "rm"{
+
+    }
+    else if userinput == "rename"{
+
+    }
+    else if userinput == "download"{
+
+    }
+    else if userinput == "upload"{
+
+    }
     else{
         println!("[invalid command]");
     }
