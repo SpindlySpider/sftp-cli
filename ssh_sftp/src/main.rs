@@ -37,7 +37,7 @@ fn sftp_build(hostname:String,port:String,
 }
 fn split_to_vec_string(raw_string:&str)->Vec<&str>{
     let temp_str = raw_string.split(" ");
-    let mut return_vec:Vec<&str>;
+    let mut return_vec:Vec<&str> = Vec::new();
     for string in temp_str{
         return_vec.push(string);
     }
@@ -166,7 +166,7 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
 
 
 
-fn sftp_choice(userinput:Vec<&str>, sftp_client:&mut sftp)
+fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter using c bindings.
     {
