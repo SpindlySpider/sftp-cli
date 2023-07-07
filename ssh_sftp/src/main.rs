@@ -3,9 +3,10 @@ use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
 
+
 use std::fs::FileType;
 use std::io;
-use std::io::Split;
+
 use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
@@ -50,7 +51,7 @@ fn sftp_main (sftp_client:&mut sftp){
     while sftp_client.alive{
         let cwd:String = format!("{}{}", list_cwd_dir(sftp_client).display(),sftp_client.cli_leader);
         print!("{}",cwd);
-        io::stdout().flush();
+        io::stdout().flush(); // allows print! to active without taking input buffer
         let mut raw_input:String = String::new();
         std::io::stdin().read_line(&mut raw_input).expect("failed to read input");
         raw_input = raw_input.trim().to_string();
@@ -164,7 +165,17 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
     return files;
 }
 
-
+fn change_dir(sftp_client:&sftp, dir_to_open:&str){
+    let current_dir = list_cwd_dir(sftp_client);
+    let abosultepath = current_dir.join(dir_to_open);//may cause error if path doesnt exist
+    if sftp_client.server_selected{
+        sftp_client.session.channel_session().unwrap();
+        sftp_client.sftp.opendir(abosultepath.as_path()).unwrap();
+    }
+    else{
+        std::env::set_current_dir(abosultepath.as_path()).unwrap();
+    }
+}
 
 fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp)
 // could make this return a string it might make it a bit easier to 
@@ -174,7 +185,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp)
         sftp_client.alive = false;
     }
     else if userinput[0] =="cd"{
-
+        change_dir(sftp_client, userinput[1]);
     }
     else if userinput[0] == "ls"{
         let file_metadata = list_files(sftp_client);
