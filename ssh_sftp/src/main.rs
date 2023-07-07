@@ -74,18 +74,24 @@ fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>
             }
             else{
                 //this is a file or somthing else but not a dir
-                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                let os_file_name = entity.filepath.file_name().unwrap() ;
+                let file_name = os_file_name.to_str().unwrap();
+                let dir_string:String = String::from(format!("{}",file_name));
                 files_list.push(dir_string);
             }
         }
         else{
             let entity_stat:FileType = entity.filetype.unwrap();
             if entity_stat.is_dir(){
-                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,entity.filepath.display()));
+                let os_folder_name = entity.filepath.file_name().unwrap() ;
+                let folder_name = os_folder_name.to_str().unwrap();
+                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,folder_name));
                 files_list.push(dir_string);
             }
             else{
-                let dir_string:String = String::from(format!("{}",entity.filepath.display()));
+                let os_file_name = entity.filepath.file_name().unwrap() ;
+                let file_name = os_file_name.to_str().unwrap();
+                let dir_string:String = String::from(format!("{}",file_name));
                 files_list.push(dir_string);
             }
 
