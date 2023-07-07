@@ -33,10 +33,12 @@ fn sftp_build(hostname:String,port:String,
 }
 
 fn sftp_main (sftp_client:&mut sftp){
-    let mut input:String = String::new();
     println!("connection established");
     while sftp_client.alive{
+        let mut input:String = String::new();
         std::io::stdin().read_line(&mut input).expect("failed to read input");
+        input = input.trim().to_string();
+        //HERE ITS NOT READING IT PROPERLY
         println!("read lines");
 
         sftp_choice(&input,sftp_client);
@@ -143,16 +145,15 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
 
 fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
 // could make this return a string it might make it a bit easier to 
-//read outputs when in flutter.
+//read outputs when in flutter using c bindings.
     {
-    if userinput == &String::from("exit"){
+    if userinput == "exit"{
         sftp_client.alive = false;
     }
     else if userinput =="cd"{
 
     }
-    else if userinput == &String::from("ls"){
-        println!("listing dir");
+    else if userinput == "ls"{
         let file_metadata = list_files(sftp_client);
         let output_list:Vec<String> = output_files_string(&file_metadata, sftp_client);
         for index in 0..output_list.len(){
@@ -169,6 +170,7 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
         sftp_client.server_selected = !invert;
     }
     else{
+        println!("not using any of the if statments");
     }
 
 }
@@ -176,7 +178,8 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
 
 fn main() {
     let password = rpassword::prompt_password("[input password] ").unwrap();
-    let port = rpassword::prompt_password("[input port] ").unwrap();
+    //let port = rpassword::prompt_password("[input port] ").unwrap();
+    let port = String::from("17927");
 
     println!("{},{}",password,port);
 
