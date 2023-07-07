@@ -11,7 +11,8 @@ pub struct sftp{
     pub alive:bool,
     pub server_selected:bool,
     pub sftp:Sftp,
-    pub folder_marker:String
+    pub folder_marker:String,
+    pub cli_leader:String
 }
 
 pub struct file_metadata{

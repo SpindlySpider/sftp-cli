@@ -4,6 +4,8 @@ use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
 
 use std::fs::FileType;
+use std::io;
+use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
 
@@ -20,6 +22,7 @@ fn sftp_build(hostname:String,port:String,
         let alive:bool = true;
         let server_selected:bool = false;
         let folder_marker:String = String::from("📁");
+        let cli_leader:String = String::from("~");
     
         let sftp:Sftp = session.sftp().unwrap();
 
@@ -27,7 +30,7 @@ fn sftp_build(hostname:String,port:String,
             , host_port, username
             , password,session,
             alive,server_selected,
-        sftp,folder_marker};
+        sftp,folder_marker,cli_leader};
 
         return sftp_client;
 }
@@ -35,13 +38,14 @@ fn sftp_build(hostname:String,port:String,
 fn sftp_main (sftp_client:&mut sftp){
     println!("connection established");
     while sftp_client.alive{
+        let cwd:String = format!("{}{}", list_cwd_dir(sftp_client).display(),sftp_client.cli_leader);
+        print!("{}",cwd);
+        io::stdout().flush();
         let mut input:String = String::new();
         std::io::stdin().read_line(&mut input).expect("failed to read input");
         input = input.trim().to_string();
-        //HERE ITS NOT READING IT PROPERLY
-        println!("read lines");
-
         sftp_choice(&input,sftp_client);
+
     }
 
 }
@@ -69,13 +73,15 @@ fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>
             let entity_stat:FileStat = entity_option.unwrap();
             if entity_stat.is_dir(){
                 //if this is a dir 
-                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,entity.filepath.display()));
+                let server_folder_name = entity.filepath.file_name().unwrap() ;
+                let folder_name = server_folder_name.to_str().unwrap();
+                let dir_string:String = String::from(format!("{}{}",sftp_client.folder_marker,folder_name));
                 files_list.push(dir_string);
             }
             else{
                 //this is a file or somthing else but not a dir
-                let os_file_name = entity.filepath.file_name().unwrap() ;
-                let file_name = os_file_name.to_str().unwrap();
+                let server_file_name = entity.filepath.file_name().unwrap() ;
+                let file_name = server_file_name.to_str().unwrap();
                 let dir_string:String = String::from(format!("{}",file_name));
                 files_list.push(dir_string);
             }
@@ -176,7 +182,7 @@ fn sftp_choice(userinput:&String, sftp_client:&mut sftp)
         sftp_client.server_selected = !invert;
     }
     else{
-        println!("not using any of the if statments");
+        println!("[invalid command]");
     }
 
 }
