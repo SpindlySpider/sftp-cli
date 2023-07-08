@@ -15,7 +15,7 @@ goals(main):
 (✅completed, ❌underconstruction )
 - cd - change directories✅
 - dir - gives abosulte path ✅
-- sw - switches between remote device and user device ✅
+- sw - switches between remote host and local host ✅
 - exit - closes connection ✅
 - ls - lists files and directories ✅
 - mkdir - make directory ❌
