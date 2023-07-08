@@ -13,7 +13,7 @@ goals(main):
     export to mobile
 # commands 
 (✅completed, ❌underconstruction )
-- cd - change directories✅
+- cd [dir_name] - change directories✅
 - dir - gives abosulte path ✅
 - sw - switches between remote host and local host ✅
 - exit - closes connection ✅
