@@ -12,14 +12,15 @@ goals(main):
     gui implmentatin
     export to mobile
 # commands 
-- cd - change directories
-- dir - gives abosulte path
-- sw - switches between remote device and user device
-- exit - closes connection
-- ls - lists files and directories
-- mkdir - make directory
-- rmdir - remove directory
-- rm -remove file
-- rename - rename file
-- download - downloads file/folder to local host
-- upload - uploads file/folder to remote host
+(✅completed, ❌underconstruction )
+- cd - change directories✅
+- dir - gives abosulte path ✅
+- sw - switches between remote device and user device ✅
+- exit - closes connection ✅
+- ls - lists files and directories ✅
+- mkdir - make directory ❌
+- rmdir - remove directory ❌
+- rm -remove file ❌
+- rename - rename file ❌
+- download - downloads file/folder to local host ❌
+- upload - uploads file/folder to remote host ❌
