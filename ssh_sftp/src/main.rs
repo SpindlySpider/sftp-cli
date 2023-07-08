@@ -25,14 +25,14 @@ fn sftp_build(hostname:String,port:String,
         let server_selected:bool = false;
         let folder_marker:String = String::from("📁");
         let cli_leader:String = String::from("~");
-    
         let sftp:Sftp = session.sftp().unwrap();
 
         let sftp_client:sftp = sftp { hostname, port
             , host_port, username
             , password,session,
             alive,server_selected,
-        sftp,folder_marker,cli_leader};
+        sftp,folder_marker,
+        cli_leader};
 
         return sftp_client;
 }
@@ -48,24 +48,25 @@ fn split_to_vec_string(raw_string:&str)->Vec<&str>{
 
 fn sftp_main (sftp_client:&mut sftp){
     println!("connection established");
+    let mut remote_cwd:PathBuf = sftp_client.sftp.realpath(Path::new(".")).unwrap();
     while sftp_client.alive{
-        let cwd:String = format!("{}{}", list_cwd_dir(sftp_client).display(),sftp_client.cli_leader);
+        let cwd:String = format!("{}{}", list_cwd_dir(sftp_client,remote_cwd.to_path_buf()).display(),sftp_client.cli_leader);
         print!("{}",cwd);
         io::stdout().flush(); // allows print! to active without taking input buffer
         let mut raw_input:String = String::new();
         std::io::stdin().read_line(&mut raw_input).expect("failed to read input");
         raw_input = raw_input.trim().to_string();
         let input = split_to_vec_string(&raw_input);
-        sftp_choice(&input,sftp_client);
+        sftp_choice(&input,sftp_client,&mut remote_cwd);
 
     }
 
 }
 
-fn list_cwd_dir(sftp_client:&sftp)->PathBuf{
+fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
     let path:PathBuf;
     if sftp_client.server_selected{
-        path = sftp_client.sftp.realpath(Path::new(".")).unwrap();
+        path = sftp_client.sftp.realpath(remote_cwd.as_path()).unwrap();
     }
     else{
         path = env::current_dir().unwrap();
@@ -121,11 +122,11 @@ fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>
 
 
 }
-fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
+fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
     //maybe just make this return a indivudal one for each type rather than trying to make a common file type
     //return vector of all files, can append a folder symbol if its a symbol 
     let mut files:Vec<file_metadata> = Vec::new();
-    let store_cwd_dir:PathBuf = list_cwd_dir(sftp_client);
+    let store_cwd_dir:PathBuf = list_cwd_dir(sftp_client,remote_cwd);
     let current_dir:&Path = store_cwd_dir.as_path();
 
     if sftp_client.server_selected{
@@ -165,19 +166,27 @@ fn list_files(sftp_client:&sftp)-> Vec<file_metadata>{
     return files;
 }
 
-fn change_dir(sftp_client:&sftp, dir_to_open:&str){
-    let current_dir = list_cwd_dir(sftp_client);
+fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
+    //can use a varible to keep track of current path
+    let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
     let abosultepath = current_dir.join(dir_to_open);//may cause error if path doesnt exist
     if sftp_client.server_selected{
-        sftp_client.session.channel_session().unwrap();
-        sftp_client.sftp.opendir(abosultepath.as_path()).unwrap();
+        match sftp_client.sftp.readdir(abosultepath.as_path()){
+            Ok(contens)=>{
+                *remote_cwd = abosultepath;
+            }
+            Err(err)=>{
+                println!("invalid dir")
+            }
+        }
+
     }
     else{
         std::env::set_current_dir(abosultepath.as_path()).unwrap();
     }
 }
 
-fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp)
+fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter using c bindings.
     {
@@ -185,17 +194,17 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp)
         sftp_client.alive = false;
     }
     else if userinput[0] =="cd"{
-        change_dir(sftp_client, userinput[1]);
+        change_dir(sftp_client, userinput[1],remote_cwd);
     }
     else if userinput[0] == "ls"{
-        let file_metadata = list_files(sftp_client);
+        let file_metadata = list_files(sftp_client,remote_cwd.to_path_buf());
         let output_list:Vec<String> = output_files_string(&file_metadata, sftp_client);
         for index in 0..output_list.len(){
             println!("{}",output_list[index]);
         } 
     }
     else if userinput[0] =="dir"{
-        let path = list_cwd_dir(sftp_client);
+        let path = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
         let path_str:&str = path.to_str().unwrap();
         println!("{}",path_str);
     }

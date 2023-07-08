@@ -1,6 +1,6 @@
-use std::{path::PathBuf, fs::ReadDir};
+use std::{path::{PathBuf, self, Path}, fs::ReadDir};
 
-use ssh2::{Sftp, Session, FileStat, FileType};
+use ssh2::{Sftp, Session, FileStat, FileType, Channel};
 pub struct sftp{
     pub hostname:String,
     pub port:String,
@@ -12,7 +12,8 @@ pub struct sftp{
     pub server_selected:bool,
     pub sftp:Sftp,
     pub folder_marker:String,
-    pub cli_leader:String
+    pub cli_leader:String,
+
 }
 
 pub struct file_metadata{
