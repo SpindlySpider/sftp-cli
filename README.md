@@ -7,9 +7,9 @@ using c bindings will use fultter for front end
 # goals 
 goals(main):
 
-    cli file transfer (with progress)
+    cli file transfer (with download/upload progress bar)
     sql databse(previous connections and relavitve file path)
-    gui implmentatin
+    gui implimenation
     export to mobile
 # commands 
 (✅completed, ❌underconstruction )
