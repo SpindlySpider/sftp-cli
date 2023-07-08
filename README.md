@@ -15,7 +15,7 @@ side goals:
 
     auto complelte on cli 
     
-# commands 
+# cli commands 
 (✅completed, ❌underconstruction )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
