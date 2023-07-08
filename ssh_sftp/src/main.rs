@@ -168,7 +168,7 @@ fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
 fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
     //can use a varible to keep track of current path
     let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
-    let abosultepath = current_dir.join(dir_to_open);//may cause error if path doesnt exist
+    let abosultepath = current_dir.join(dir_to_open);
     if sftp_client.server_selected{
         match sftp_client.sftp.readdir(abosultepath.as_path()){
             Ok(read_dir_buffer)=>{
@@ -181,7 +181,52 @@ fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
 
     }
     else{
-        std::env::set_current_dir(abosultepath.as_path()).unwrap();
+        match std::env::set_current_dir(abosultepath.as_path()){
+            Ok(read_dir_buffer)=>{
+                std::env::set_current_dir(abosultepath.as_path()).unwrap();
+            }
+            Err(err)=>{
+                println!("invalid dir")
+            }
+        }
+    }
+}
+
+fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
+    //vaildates if a file actually exists 
+    let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+    let abosultepath = current_dir.join(file_to_check);
+    if sftp_client.server_selected{
+        match sftp_client.sftp.open(abosultepath.as_path()){
+            Ok(file_buffer)=>{
+                return true;
+            }
+            Err(err)=>{
+                return false;
+            }
+        }
+
+    }
+    else{
+        match std::fs::File::open(abosultepath){
+            Ok(read_dir_buffer)=>{
+                return true;
+            }
+            Err(err)=>{
+                return false;
+            }
+        }
+    }
+}
+
+fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
+    //this will only take from remote host 
+    if vaild_file(sftp_client, entry_to_download, remote_cwd.to_path_buf()){
+        let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+        let abosultepath = current_dir.join(entry_to_download);
+        let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
+        let file_buffer = vec![0;file_size.try_into().unwrap()];
+        
     }
 }
 
