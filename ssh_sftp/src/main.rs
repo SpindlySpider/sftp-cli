@@ -77,10 +77,9 @@ fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
 
 fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>{
     //used to output a string of all of the files
-    //need to covnert filestat to a useable file
     let mut files_list:Vec<String> = Vec::new();
     for entity in files{
-        if entity.filestat != None{//may cause error since it returns a option type
+        if entity.filestat != None{
             //if this is a server file 
             let entity_option:Option<FileStat> = entity.filestat.clone();
             let entity_stat:FileStat = entity_option.unwrap();
@@ -172,7 +171,7 @@ fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
     let abosultepath = current_dir.join(dir_to_open);//may cause error if path doesnt exist
     if sftp_client.server_selected{
         match sftp_client.sftp.readdir(abosultepath.as_path()){
-            Ok(contens)=>{
+            Ok(read_dir_buffer)=>{
                 *remote_cwd = abosultepath;
             }
             Err(err)=>{
@@ -228,6 +227,9 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
 
     }
     else if userinput[0] == "upload"{
+
+    }
+    else if userinput[0] == "move"{
 
     }
     else{
