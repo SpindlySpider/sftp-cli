@@ -11,7 +11,11 @@ goals(main):
     sql databse(previous connections and relavitve file path)
     gui implimenation
     export to mobile
-# commands 
+side goals:
+
+    auto complelte on cli 
+    
+# cli commands 
 (✅completed, ❌underconstruction )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
