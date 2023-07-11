@@ -235,6 +235,8 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
         let mut file_buffer = vec![0;file_size.try_into().unwrap()];
         let mut remote_file = sftp_client.sftp.open(&abosultepath).unwrap();
         let mut loop_alive:bool = true;
+        let file_permissions = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().perm.unwrap();
+        let remote_file_metadata = remote_file.stat().unwrap();
         while loop_alive{
             let bytes_read = remote_file.read(&mut file_buffer).unwrap();
             if bytes_read == 0{
