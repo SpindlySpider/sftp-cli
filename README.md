@@ -8,6 +8,7 @@ using c bindings will use flutter for front end
 goals(main):
 
     cli file transfer (with download/upload progress bar)
+    files transfer with existing metadata, such as creation data, modify date and what not
     sql databse(previous connections and relavitve file path)
     gui implimenation
     export to mobile
