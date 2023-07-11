@@ -1,12 +1,13 @@
 mod structures;
 use structures::sftp;
 use structures::file_metadata;
-use ssh2::{Sftp, Session, FileStat};
+use ssh2::{Sftp, Session, FileStat,File};
 
-
+use std::arch::x86_64::_mm_loaddup_pd;
 use std::fs::FileType;
 use std::io;
 
+use std::io::Read;
 use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
@@ -75,6 +76,10 @@ fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
     return path;
 }
 
+fn list_local_host_cwd()->PathBuf{
+    let path:PathBuf =env::current_dir().unwrap();
+    return path;
+}
 fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>{
     //used to output a string of all of the files
     let mut files_list:Vec<String> = Vec::new();
@@ -221,12 +226,34 @@ fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
 
 fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
     //this will only take from remote host 
+
+    // need to seprately transfer metadata to the file
     if vaild_file(sftp_client, entry_to_download, remote_cwd.to_path_buf()){
         let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
         let abosultepath = current_dir.join(entry_to_download);
         let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
-        let file_buffer = vec![0;file_size.try_into().unwrap()];
-        
+        let mut file_buffer = vec![0;file_size.try_into().unwrap()];
+        let mut remote_file = sftp_client.sftp.open(&abosultepath).unwrap();
+        let mut loop_alive:bool = true;
+        while loop_alive{
+            let bytes_read = remote_file.read(&mut file_buffer).unwrap();
+            if bytes_read == 0{
+                //finsihed reading file
+                loop_alive = false;
+            }
+            else{
+                //can use this to see the status of download :)
+            }
+        }
+        if local_file_path == None{
+            // if there is no specified path then download to cwd
+            let mut local_file = std::fs::File::create(list_local_host_cwd()).unwrap();
+            local_file.write_all(&file_buffer).unwrap();
+        }
+        else{
+            let mut local_file = std::fs::File::create(local_file_path.unwrap()).unwrap();
+            local_file.write_all(&file_buffer).unwrap();
+        }
     }
 }
 
