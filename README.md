@@ -19,7 +19,7 @@ using c bindings will use flutter for front end
 * get files to download which have spaces in them
     
 ## cli commands 
-(✅completed, ❌underconstruction )
+(✅completed, ❌incomplete )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
 - sw - switches between remote host and local host ✅
