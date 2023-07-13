@@ -15,6 +15,7 @@ side goals:
 
     auto complelte on cli 
     files transfer with existing metadata, such as creation data, modify date and what not
+    get files to work which have spaces in them
     
 # cli commands 
 (✅completed, ❌underconstruction )
