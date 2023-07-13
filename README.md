@@ -4,20 +4,21 @@ using rust for back end with file exploring and ssh sftp file transfer.
 
 using c bindings will use flutter for front end 
 
-# goals 
+## goals 
 goals(main):
 
-    cli file transfer (with download/upload progress bar)
-    sql databse(previous connections and relavitve file path)
-    gui implimenation
-    export to mobile
-side goals:
+* cli file transfer (with download/upload progress bar)
+* sql databse(previous connections and relavitve file path)
+* gui implimenation
+* export to mobile using flutter front end
 
-    auto complelte on cli 
-    files transfer with existing metadata, such as creation data, modify date and what not
-    get files to work which have spaces in them
+### side goals:
+
+* auto complelte on cli 
+* files transfer with existing metadata, such as creation data, modify date and what not
+* get files to download which have spaces in them
     
-# cli commands 
+## cli commands 
 (✅completed, ❌underconstruction )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
