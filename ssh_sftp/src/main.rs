@@ -1,12 +1,8 @@
 mod structures;
 use structures::sftp;
 use structures::file_metadata;
-use ssh2::{Sftp, Session, FileStat,File};
-
-use std::arch::x86_64::_mm_loaddup_pd;
+use ssh2::{Sftp, Session, FileStat};
 use std::fs::FileType;
-use std::io;
-
 use std::io::Read;
 use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
@@ -53,7 +49,7 @@ fn sftp_main (sftp_client:&mut sftp){
     while sftp_client.alive{
         let cwd:String = format!("{}{}", list_cwd_dir(sftp_client,remote_cwd.to_path_buf()).display(),sftp_client.cli_leader);
         print!("{}",cwd);
-        io::stdout().flush(); // allows print! to active without taking input buffer
+        std::io::stdout().flush(); // allows print! to active without taking input buffer
         let mut raw_input:String = String::new();
         std::io::stdin().read_line(&mut raw_input).expect("failed to read input");
         raw_input = raw_input.trim().to_string();
@@ -231,14 +227,14 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
     if vaild_file(sftp_client, entry_to_download, remote_cwd.to_path_buf()){
         let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
         let abosultepath = current_dir.join(entry_to_download);
-        let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
-        let mut file_buffer = vec![0;file_size.try_into().unwrap()];
+        //let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
+        let mut file_buffer = Vec::new();
         let mut remote_file = sftp_client.sftp.open(&abosultepath).unwrap();
         let mut loop_alive:bool = true;
-        let file_permissions = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().perm.unwrap();
-        let remote_file_metadata = remote_file.stat().unwrap();
+        //let file_permissions = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().perm.unwrap();
+        //let remote_file_metadata = remote_file.stat().unwrap();
         while loop_alive{
-            let bytes_read = remote_file.read(&mut file_buffer).unwrap();
+            let bytes_read = remote_file.read_to_end(&mut file_buffer).unwrap();
             if bytes_read == 0{
                 //finsihed reading file
                 loop_alive = false;
@@ -247,15 +243,21 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
                 //can use this to see the status of download :)
             }
         }
+        let mut local_file:fs::File;
         if local_file_path == None{
             // if there is no specified path then download to cwd
-            let mut local_file = std::fs::File::create(list_local_host_cwd()).unwrap();
-            local_file.write_all(&file_buffer).unwrap();
+            let mut local_file_path = list_local_host_cwd();
+            local_file_path.push(entry_to_download);
+            local_file = fs::File::create(local_file_path).unwrap();
         }
         else{
-            let mut local_file = std::fs::File::create(local_file_path.unwrap()).unwrap();
-            local_file.write_all(&file_buffer).unwrap();
+            local_file = fs::File::create(local_file_path.unwrap()).unwrap();
         }
+        local_file.write_all(&file_buffer).unwrap();
+        println!("successful download")
+    }
+    else{
+        println!("not a vaild file");
     }
 }
 
@@ -299,6 +301,20 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
     }
     else if userinput[0] == "download"{
 
+        if userinput.len() <1{
+            println!("provide file to download")
+        }
+        else if userinput.len()==2{
+            //if download file_name no_path
+            download(sftp_client, userinput[1], None, remote_cwd)
+        }
+        else if userinput.len() == 3{
+            //if download file_name path 
+            println!("{}",userinput.concat());
+            let local_path:PathBuf = PathBuf::from(userinput[2]);
+            download(sftp_client, userinput[1], Some(local_path), remote_cwd);
+
+        }
     }
     else if userinput[0] == "upload"{
 
