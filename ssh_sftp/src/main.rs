@@ -288,7 +288,7 @@ fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<P
         let mut remote_file:File;
         if remote_file_path == None{
             // if there is no specified path then download to cwd
-            let remote_file_path = remote_cwd;
+            let mut remote_file_path = remote_cwd.clone();
             remote_file_path.push(entry_to_upload);
             remote_file = sftp_client.sftp.create(remote_file_path.as_path()).unwrap();
         }
