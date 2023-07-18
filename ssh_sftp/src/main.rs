@@ -271,7 +271,6 @@ fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<P
     if vaild_file(sftp_client, entry_to_upload, list_local_host_cwd().to_path_buf()){
         let current_dir = list_cwd_dir(sftp_client,list_local_host_cwd().to_path_buf());
         let abosultepath = current_dir.join(entry_to_upload);
-        //let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
         let mut file_buffer = Vec::new();
         let mut local_file = fs::File::open(abosultepath).unwrap();
         let mut loop_alive:bool = true;
@@ -282,7 +281,7 @@ fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<P
                 loop_alive = false;
             }
             else{
-                //can use this to see the status of download :)
+                //can use this to see the status of upload :)
             }
         }
         let mut remote_file:File;
