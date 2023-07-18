@@ -18,6 +18,7 @@ using c bindings will use flutter for front end
 * files transfer with existing metadata, such as creation data, modify date and what not
 * get files to download which have spaces in their names 
 * status of upload/download
+* setting permisions of mkdir (using mode status, default it is set as 0o755)
     
 ## cli commands 
 (✅completed, ❌incomplete )
@@ -26,9 +27,9 @@ using c bindings will use flutter for front end
 - sw - switches between remote host and local host ✅
 - exit - closes connection ✅
 - ls - lists files and directories ✅
-- mkdir [dir name] [local path] - make directory ❌
-- rmdir [dir name]- remove directory ❌
-- rm [file name]-remove file ❌
+- mkdir [dir name] [path] - make directory ❌
+- rmdir [dir name] [path]- remove directory ❌
+- rm [file name] [path]-remove file ❌
 - rename [file/folder name] [new name]- rename file ❌
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
 - upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌/✅ (only works for files atm)
