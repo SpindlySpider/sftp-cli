@@ -26,7 +26,7 @@ using c bindings will use flutter for front end
 - sw - switches between remote host and local host ✅
 - exit - closes connection ✅
 - ls - lists files and directories ✅
-- mkdir [dir name] - make directory ❌
+- mkdir [dir name] [local path] - make directory ❌
 - rmdir [dir name]- remove directory ❌
 - rm [file name]-remove file ❌
 - rename [file/folder name] [new name]- rename file ❌
