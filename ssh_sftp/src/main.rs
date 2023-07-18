@@ -1,4 +1,5 @@
 mod structures;
+use ssh2::File;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
@@ -261,6 +262,48 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
     }
 }
 
+
+
+fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
+    //this will only take from local host 
+
+    // need to seprately transfer metadata to the file
+    if vaild_file(sftp_client, entry_to_upload, list_local_host_cwd().to_path_buf()){
+        let current_dir = list_cwd_dir(sftp_client,list_local_host_cwd().to_path_buf());
+        let abosultepath = current_dir.join(entry_to_upload);
+        //let file_size = sftp_client.sftp.lstat(abosultepath.as_ref()).unwrap().size.unwrap();
+        let mut file_buffer = Vec::new();
+        let mut local_file = fs::File::open(abosultepath).unwrap();
+        let mut loop_alive:bool = true;
+        while loop_alive{
+            let bytes_read = local_file.read_to_end(&mut file_buffer).unwrap();
+            if bytes_read == 0{
+                //finsihed reading file
+                loop_alive = false;
+            }
+            else{
+                //can use this to see the status of download :)
+            }
+        }
+        let mut remote_file:File;
+        if remote_file_path == None{
+            // if there is no specified path then download to cwd
+            let remote_file_path = remote_cwd;
+            remote_file_path.push(entry_to_upload);
+            remote_file = sftp_client.sftp.create(remote_file_path.as_path()).unwrap();
+        }
+        else{
+            remote_file = sftp_client.sftp.create(remote_file_path.as_ref().unwrap().as_path()).unwrap();
+        }
+        remote_file.write_all(&file_buffer).unwrap();
+        println!("successful upload")
+    }
+    else{
+        println!("not a vaild file");
+    }
+}
+
+
 fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter using c bindings.
@@ -317,7 +360,20 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         }
     }
     else if userinput[0] == "upload"{
+        if userinput.len() <1{
+            println!("provide file to upload")
+        }
+        else if userinput.len()==2{
+            //if upload file_name no_path
+            upload(sftp_client, userinput[1], None, remote_cwd)
+        }
+        else if userinput.len() == 3{
+            //if upload file_name path 
+            println!("{}",userinput.concat());
+            let local_path:PathBuf = PathBuf::from(userinput[2]);
+            upload(sftp_client, userinput[1], Some(local_path), remote_cwd);
 
+        }
     }
     else if userinput[0] == "move"{
 
