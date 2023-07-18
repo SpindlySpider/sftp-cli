@@ -30,5 +30,5 @@ using c bindings will use flutter for front end
 - rm [file name]-remove file ❌
 - rename [file/folder name] [new name]- rename file ❌
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
-- upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌
+- upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌/✅ (only works for files atm)
 - move [file/folder name] [new path] - moves a file/folder to a new location ❌
