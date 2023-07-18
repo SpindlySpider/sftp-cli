@@ -3,6 +3,7 @@ use ssh2::File;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
+use std::error;
 use std::fs::FileType;
 use std::io::Read;
 use std::io::Write;
@@ -299,6 +300,20 @@ fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<P
     }
     else{
         println!("not a vaild file");
+    }
+}
+
+fn make_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf) {
+    if sftp_client.server_selected{
+        let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.clone());
+        let abosultepath: PathBuf = current_dir.join(directory_name);
+        let permissions:i32 = i32::from(0o755);
+        sftp_client.sftp.mkdir(abosultepath.as_path(), permissions).unwrap(); // need to error check this 
+    }
+    else{
+        let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.clone());
+        let abosultepath: PathBuf = current_dir.join(directory_name);
+        fs::create_dir(abosultepath).unwrap(); // need to error handle
     }
 }
 
