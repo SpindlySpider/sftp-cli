@@ -21,14 +21,14 @@ using c bindings will use flutter for front end
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
     
 ## cli commands 
-(✅completed, ❌incomplete )
+(✅complete, ❌incomplete )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
 - sw - switches between remote host and local host ✅
 - exit - closes connection ✅
 - ls - lists files and directories ✅
-- mkdir [dir name] [path] - make directory ❌
-- rmdir [dir name] [path]- remove directory ❌
+- mkdir [dir name] [path] - make directory ❌/✅ (path function is not working yet)
+- rmdir [dir name] [path]- remove directory ❌/✅(path function is not working yet)
 - rm [file name] [path]-remove file ❌
 - rename [file/folder name] [new name]- rename file ❌
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
