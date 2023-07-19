@@ -19,6 +19,7 @@ using c bindings will use flutter for front end
 * get files to download which have spaces in their names 
 * status of upload/download
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
+* adding ssh terminal intergration
     
 ## cli commands 
 (✅complete, ❌incomplete )
