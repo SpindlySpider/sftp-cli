@@ -353,6 +353,24 @@ fn remove_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf
     }
 }
 
+fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathBuf){
+    // need to seprately transfer metadata to the file
+    if vaild_file(sftp_client, entry_to_delete, remote_cwd.to_path_buf()){
+        let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+        let abosultepath = current_dir.join(entry_to_delete);
+        if sftp_client.server_selected{
+            let _remote_file = sftp_client.sftp.unlink(&abosultepath).unwrap();
+        }
+        else{
+            let _local_file = fs::remove_file(abosultepath).unwrap();
+        }
+        println!("succesfully removed {}", entry_to_delete);
+
+    }
+    else{
+        println!("not a vaild file");
+    }
+}
 
 
 fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
@@ -388,7 +406,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         remove_dir(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rm"{
-
+        remove_file(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rename"{
 
