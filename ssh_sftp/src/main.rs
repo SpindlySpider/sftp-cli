@@ -3,7 +3,6 @@ use ssh2::File;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
-use std::error;
 use std::fs::FileType;
 use std::io::Read;
 use std::io::Write;
@@ -168,29 +167,48 @@ fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
     return files;
 }
 
-fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
-    //can use a varible to keep track of current path
-    let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
-    let abosultepath = current_dir.join(dir_to_open);
+fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf, remote_cwd:&mut PathBuf)->bool{
+    //checks if the dir is actually there
     if sftp_client.server_selected{
-        match sftp_client.sftp.readdir(abosultepath.as_path()){
-            Ok(read_dir_buffer)=>{
-                *remote_cwd = abosultepath;
+        match sftp_client.sftp.readdir(dir_path.as_path()){
+            Ok(_read_dir_buffer)=>{
+                return  true;
             }
-            Err(err)=>{
-                println!("invalid dir")
+            Err(_err)=>{
+                return false;
             }
         }
 
     }
     else{
-        match std::env::set_current_dir(abosultepath.as_path()){
-            Ok(read_dir_buffer)=>{
-                std::env::set_current_dir(abosultepath.as_path()).unwrap();
+        match std::env::set_current_dir(dir_path.as_path()){
+            Ok(_read_dir_buffer)=>{
+                return true;}
+            Err(_err)=>{
+                return false;
             }
-            Err(err)=>{
-                println!("invalid dir")
-            }
+        }
+    }
+}
+
+fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
+    //can use a varible to keep track of current path
+    let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+    let abosultepath = current_dir.join(dir_to_open);
+    if sftp_client.server_selected{
+        if check_vaild_dir(sftp_client, &abosultepath, remote_cwd){
+            *remote_cwd = abosultepath;
+        }
+        else{
+            println!("invalid dir")
+        }
+    }
+    else{
+        if check_vaild_dir(sftp_client, &abosultepath, remote_cwd){
+            std::env::set_current_dir(abosultepath.as_path()).unwrap();
+        }
+        else{
+            println!("invalid dir")
         }
     }
 }
@@ -201,10 +219,10 @@ fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
     let abosultepath = current_dir.join(file_to_check);
     if sftp_client.server_selected{
         match sftp_client.sftp.open(abosultepath.as_path()){
-            Ok(file_buffer)=>{
+            Ok(_file_buffer)=>{
                 return true;
             }
-            Err(err)=>{
+            Err(_err)=>{
                 return false;
             }
         }
@@ -212,10 +230,10 @@ fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
     }
     else{
         match std::fs::File::open(abosultepath){
-            Ok(read_dir_buffer)=>{
+            Ok(_read_dir_buffer)=>{
                 return true;
             }
-            Err(err)=>{
+            Err(_err)=>{
                 return false;
             }
         }
@@ -345,7 +363,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         sftp_client.server_selected = !invert;
     }
     else if userinput[0] == "mkdir"{
-
+        make_dir(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rmdir"{
 
