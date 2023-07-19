@@ -21,7 +21,7 @@ using c bindings will use flutter for front end
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
     
 ## cli commands 
-(✅completed, ❌incomplete )
+(✅complete, ❌incomplete )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
 - sw - switches between remote host and local host ✅
