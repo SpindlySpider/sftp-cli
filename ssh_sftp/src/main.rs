@@ -1,5 +1,6 @@
 mod structures;
 use ssh2::File;
+use ssh2::RenameFlags;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
@@ -372,6 +373,34 @@ fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathB
     }
 }
 
+fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,file_destination:PathBuf, new_file_name:Option<&str>){
+    // can rename the file in the new destination
+    let destination_dir:PathBuf = PathBuf::from(file_destination.clone());
+    if vaild_file(sftp_client, file_to_move, remote_cwd.to_path_buf())
+    && check_vaild_dir(sftp_client, &destination_dir){
+        let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+        let source_abosultepath: PathBuf = current_dir.join(file_to_move);
+        let dest_abosultepath:PathBuf;
+        if new_file_name == None{
+            dest_abosultepath =file_destination.join(file_to_move);
+        }
+        else{
+            dest_abosultepath = file_destination.join(new_file_name.unwrap());
+        }
+        if sftp_client.server_selected{
+            let _remote_file_move = sftp_client.sftp.rename(&source_abosultepath,&dest_abosultepath,None).unwrap();
+        }
+        else{
+            let _local_file_move = fs::rename(source_abosultepath,&dest_abosultepath).unwrap();
+        }
+        println!("succesfully moved {} to {}", file_to_move, dest_abosultepath.display());
+
+    }
+    else{
+        println!("not a vaild file/dir");
+    }
+}
+
 
 fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
 // could make this return a string it might make it a bit easier to 
@@ -445,7 +474,8 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         }
     }
     else if userinput[0] == "move"{
-
+        let file_destination:PathBuf = PathBuf::from(userinput[2]);
+        move_file(sftp_client, userinput[1], remote_cwd, file_destination, Some(userinput[3]))
     }
     else{
         println!("[invalid command]");
