@@ -50,7 +50,7 @@ fn sftp_main (sftp_client:&mut sftp){
     while sftp_client.alive{
         let cwd:String = format!("{}{}", list_cwd_dir(sftp_client,remote_cwd.to_path_buf()).display(),sftp_client.cli_leader);
         print!("{}",cwd);
-        std::io::stdout().flush(); // allows print! to active without taking input buffer
+        std::io::stdout().flush().unwrap(); // allows print! to active without taking input buffer
         let mut raw_input:String = String::new();
         std::io::stdin().read_line(&mut raw_input).expect("failed to read input");
         raw_input = raw_input.trim().to_string();
@@ -117,7 +117,6 @@ fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>
 
         }
     }
-
     return files_list;
 
 
@@ -167,7 +166,7 @@ fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
     return files;
 }
 
-fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf, remote_cwd:&mut PathBuf)->bool{
+fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf)->bool{
     //checks if the dir is actually there
     if sftp_client.server_selected{
         match sftp_client.sftp.readdir(dir_path.as_path()){
@@ -196,7 +195,7 @@ fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
     let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
     let abosultepath = current_dir.join(dir_to_open);
     if sftp_client.server_selected{
-        if check_vaild_dir(sftp_client, &abosultepath, remote_cwd){
+        if check_vaild_dir(sftp_client, &abosultepath){
             *remote_cwd = abosultepath;
         }
         else{
@@ -204,7 +203,7 @@ fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
         }
     }
     else{
-        if check_vaild_dir(sftp_client, &abosultepath, remote_cwd){
+        if check_vaild_dir(sftp_client, &abosultepath){
             std::env::set_current_dir(abosultepath.as_path()).unwrap();
         }
         else{
@@ -335,6 +334,26 @@ fn make_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf) 
     }
 }
 
+fn remove_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf){
+    let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.clone());
+    let abosultepath: PathBuf = current_dir.join(directory_name);
+    if check_vaild_dir(sftp_client, &abosultepath){
+
+        if sftp_client.server_selected{
+            sftp_client.sftp.rmdir(abosultepath.as_path()).unwrap(); // need to error check this 
+            println!("successfully removed {}", directory_name);
+        }
+        else{
+            fs::remove_dir(abosultepath).unwrap(); // need to error handle
+            println!("successfully removed {}", directory_name);
+        }
+    }
+    else{
+        println!("{} does not exist",directory_name);
+    }
+}
+
+
 
 fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
 // could make this return a string it might make it a bit easier to 
@@ -366,7 +385,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         make_dir(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rmdir"{
-
+        remove_dir(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rm"{
 
