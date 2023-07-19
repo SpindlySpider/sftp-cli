@@ -19,6 +19,8 @@ using c bindings will use flutter for front end
 * get files to download which have spaces in their names 
 * status of upload/download
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
+* adding ssh terminal intergration
+* customisable renaming flags
     
 ## cli commands 
 (✅complete, ❌incomplete )
@@ -29,7 +31,7 @@ using c bindings will use flutter for front end
 - ls - lists files and directories ✅
 - mkdir [dir name] [path] - make directory ❌/✅ (path function is not working yet)
 - rmdir [dir name] [path]- remove directory ❌/✅(path function is not working yet)
-- rm [file name] [path]-remove file ❌
+- rm [file name] [path]-remove file ✅
 - rename [file/folder name] [new name]- rename file ❌
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
 - upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌/✅ (only works for files atm)
