@@ -20,7 +20,7 @@ using c bindings will use flutter for front end
 * status of upload/download
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
 * adding ssh terminal intergration
-* customisable renaming flags
+* customisable renaming flags https://docs.rs/ssh2/latest/ssh2/struct.RenameFlags.html
     
 ## cli commands 
 (✅complete, ❌incomplete )
