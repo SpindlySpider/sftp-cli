@@ -373,6 +373,27 @@ fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathB
         println!("not a vaild file");
     }
 }
+fn rename_entity(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf, new_file_name:&str){
+    let destination_dir:PathBuf = PathBuf::from(".");
+    if vaild_file(sftp_client, file_to_move, remote_cwd.to_path_buf())
+    || check_vaild_dir(sftp_client, &destination_dir){
+        let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
+        let source_abosultepath: PathBuf = current_dir.clone().join(file_to_move);
+        let dest_abosultepath:PathBuf=destination_dir.join(new_file_name);
+        if sftp_client.server_selected{
+            let _remote_file_move = sftp_client.sftp.rename(&source_abosultepath,&dest_abosultepath,None).unwrap();
+        }
+        else{
+            let _local_file_move = fs::rename(source_abosultepath,
+                &dest_abosultepath);
+        }
+        println!("succesfully renamed {} to {}", file_to_move, dest_abosultepath.display());
+
+    }
+    else{
+        println!("not a vaild file/dir");
+    }
+}
 
 fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,file_destination:PathBuf, new_file_name:Option<&str>){
     // can rename the file in the new destination
@@ -391,8 +412,6 @@ fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,fi
         else{
             dest_abosultepath = destination_dir.join(new_file_name.unwrap());
         }
-        println!("{}",dest_abosultepath.display());
-        println!("{}",source_abosultepath.display());
         if sftp_client.server_selected{
             let _remote_file_move = sftp_client.sftp.rename(&source_abosultepath,&dest_abosultepath,None).unwrap();
         }
@@ -445,11 +464,20 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         remove_file(sftp_client, userinput[1], remote_cwd)
     }
     else if userinput[0] == "rename"{
-
+        if userinput.len() <=1{
+            println!("provide file to rename")
+        }
+        else if userinput.len()==2{
+            //if download file_name no_path
+            println!("provide new name")
+        }
+        else{
+            rename_entity(sftp_client, userinput[1], remote_cwd, userinput[2]);
+        }
     }
     else if userinput[0] == "download"{
 
-        if userinput.len() <1{
+        if userinput.len() <=1{
             println!("provide file to download")
         }
         else if userinput.len()==2{
@@ -465,7 +493,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         }
     }
     else if userinput[0] == "upload"{
-        if userinput.len() <1{
+        if userinput.len() <=1{
             println!("provide file to upload")
         }
         else if userinput.len()==2{
@@ -482,7 +510,7 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
     }
     else if userinput[0] == "move"{
         let file_destination:PathBuf;
-        if userinput.len() <1{
+        if userinput.len() <=1{
             println!("provide file to move")
         }
         else if userinput.len()  == 2{
