@@ -20,7 +20,7 @@ using c bindings will use flutter for front end
 * status of upload/download
 * setting permisions of mkdir (using mode status, default it is set as 0o755)
 * adding ssh terminal intergration
-* customisable renaming flags
+* customisable renaming flags https://docs.rs/ssh2/latest/ssh2/struct.RenameFlags.html
     
 ## cli commands 
 (✅complete, ❌incomplete )
@@ -35,4 +35,4 @@ using c bindings will use flutter for front end
 - rename [file/folder name] [new name]- rename file ❌
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
 - upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌/✅ (only works for files atm)
-- move [file/folder name] [new path] - moves a file/folder to a new location ❌
+- move [file/folder name] [new destination path] [new name]- moves a file/folder to a new location ❌
