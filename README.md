@@ -23,7 +23,7 @@ using c bindings will use flutter for front end
 * customisable renaming flags https://docs.rs/ssh2/latest/ssh2/struct.RenameFlags.html
     
 ## cli commands 
-(✅complete, ❌incomplete, partially complete )
+(✅complete, ❌incomplete, ❗ partially complete )
 - cd [dir name] - change directories✅
 - dir - gives abosulte path ✅
 - sw - switches between remote host and local host ✅
