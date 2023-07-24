@@ -1,6 +1,5 @@
 mod structures;
 use ssh2::File;
-use ssh2::RenameFlags;
 use structures::sftp;
 use structures::file_metadata;
 use ssh2::{Sftp, Session, FileStat};
@@ -181,8 +180,10 @@ fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf)->bool{
 
     }
     else{
+        let cwd: PathBuf = std::env::current_dir().unwrap();
         match std::env::set_current_dir(dir_path.as_path()){
             Ok(_read_dir_buffer)=>{
+                std::env::set_current_dir(cwd).unwrap();
                 return true;}
             Err(_err)=>{
                 return false;
@@ -379,19 +380,25 @@ fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,fi
     if vaild_file(sftp_client, file_to_move, remote_cwd.to_path_buf())
     && check_vaild_dir(sftp_client, &destination_dir){
         let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
-        let source_abosultepath: PathBuf = current_dir.join(file_to_move);
+        let source_abosultepath: PathBuf = current_dir.clone().join(file_to_move);
         let dest_abosultepath:PathBuf;
+
         if new_file_name == None{
-            dest_abosultepath =file_destination.join(file_to_move);
+            dest_abosultepath =destination_dir.join(file_to_move);
+            println!("{}",dest_abosultepath.display())
+            
         }
         else{
-            dest_abosultepath = file_destination.join(new_file_name.unwrap());
+            dest_abosultepath = destination_dir.join(new_file_name.unwrap());
         }
+        println!("{}",dest_abosultepath.display());
+        println!("{}",source_abosultepath.display());
         if sftp_client.server_selected{
             let _remote_file_move = sftp_client.sftp.rename(&source_abosultepath,&dest_abosultepath,None).unwrap();
         }
         else{
-            let _local_file_move = fs::rename(source_abosultepath,&dest_abosultepath).unwrap();
+            let _local_file_move = fs::rename(source_abosultepath,
+                &dest_abosultepath);
         }
         println!("succesfully moved {} to {}", file_to_move, dest_abosultepath.display());
 
@@ -474,8 +481,22 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
         }
     }
     else if userinput[0] == "move"{
-        let file_destination:PathBuf = PathBuf::from(userinput[2]);
-        move_file(sftp_client, userinput[1], remote_cwd, file_destination, Some(userinput[3]))
+        let file_destination:PathBuf;
+        if userinput.len() <1{
+            println!("provide file to move")
+        }
+        else if userinput.len()  == 2{
+            println!("provide destination")
+        }
+        else if userinput.len()==3{
+            file_destination = PathBuf::from(userinput[2]);
+            move_file(sftp_client, userinput[1], remote_cwd, file_destination, None);
+        }
+        else if userinput.len() == 4{
+            file_destination = PathBuf::from(userinput[2]);
+            move_file(sftp_client, userinput[1], remote_cwd, file_destination, Some(userinput[3]));
+
+        }
     }
     else{
         println!("[invalid command]");
@@ -498,6 +519,3 @@ fn main() {
         password);
     sftp_main(&mut sftp_client);
 }
-
-
-
