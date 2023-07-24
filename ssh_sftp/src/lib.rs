@@ -9,7 +9,8 @@ use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
 
-fn sftp_build(hostname:String,port:String,
+#[no_mangle]
+pub extern "C" fn sftp_build(hostname:String,port:String,
     username:String,password:String)->sftp{
         let host_port:String = format!("{}:{}",&hostname.clone(),&port.clone());
         let tcp:TcpStream = std::net::TcpStream::connect(&host_port).unwrap();
@@ -33,7 +34,8 @@ fn sftp_build(hostname:String,port:String,
 
         return sftp_client;
 }
-fn split_to_vec_string(raw_string:&str)->Vec<&str>{
+#[no_mangle]
+pub extern "C" fn split_to_vec_string(raw_string:&str)->Vec<&str>{
     let temp_str = raw_string.split(" ");
     let mut return_vec:Vec<&str> = Vec::new();
     for string in temp_str{
@@ -42,7 +44,9 @@ fn split_to_vec_string(raw_string:&str)->Vec<&str>{
     return return_vec;
 
 }
-fn sftp_main (sftp_client:&mut sftp){
+
+#[no_mangle]
+pub extern "C" fn sftp_main (sftp_client:&mut sftp){
     println!("connection established");
     let mut remote_cwd:PathBuf = sftp_client.sftp.realpath(Path::new(".")).unwrap();
     while sftp_client.alive{
@@ -58,7 +62,9 @@ fn sftp_main (sftp_client:&mut sftp){
     }
 
 }
-fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
+
+#[no_mangle]
+pub extern "C" fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
     let path:PathBuf;
     if sftp_client.server_selected{
         path = sftp_client.sftp.realpath(remote_cwd.as_path()).unwrap();
@@ -69,11 +75,13 @@ fn list_cwd_dir(sftp_client:&sftp,remote_cwd: PathBuf)->PathBuf{
 
     return path;
 }
-fn list_local_host_cwd()->PathBuf{
+#[no_mangle]
+pub extern "C" fn list_local_host_cwd()->PathBuf{
     let path:PathBuf =env::current_dir().unwrap();
     return path;
 }
-fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>{
+#[no_mangle]
+pub extern "C" fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>{
     //used to output a string of all of the files
     let mut files_list:Vec<String> = Vec::new();
     for entity in files{
@@ -118,7 +126,8 @@ fn output_files_string(files:&Vec<file_metadata>,sftp_client:&sftp)->Vec<String>
 
 
 }
-fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
+#[no_mangle]
+pub extern "C" fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
     //maybe just make this return a indivudal one for each type rather than trying to make a common file type
     //return vector of all files, can append a folder symbol if its a symbol 
     let mut files:Vec<file_metadata> = Vec::new();
@@ -162,7 +171,8 @@ fn list_files(sftp_client:&sftp,remote_cwd:PathBuf)-> Vec<file_metadata>{
     return files;
 }
 
-fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf)->bool{
+#[no_mangle]
+pub extern "C" fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf)->bool{
     //checks if the dir is actually there
     if sftp_client.server_selected{
         match sftp_client.sftp.readdir(dir_path.as_path()){
@@ -187,7 +197,8 @@ fn check_vaild_dir(sftp_client:&mut sftp, dir_path:&PathBuf)->bool{
         }
     }
 }
-fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
+#[no_mangle]
+pub extern "C" fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
     //can use a varible to keep track of current path
     let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
     let abosultepath = current_dir.join(dir_to_open);
@@ -208,7 +219,8 @@ fn change_dir(sftp_client:&mut sftp, dir_to_open:&str, remote_cwd:&mut PathBuf){
         }
     }
 }
-fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
+#[no_mangle]
+pub extern "C" fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
     //vaildates if a file actually exists 
     let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
     let abosultepath = current_dir.join(file_to_check);
@@ -234,7 +246,8 @@ fn vaild_file(sftp_client:&sftp,file_to_check:&str,remote_cwd: PathBuf)->bool{
         }
     }
 }
-fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
+#[no_mangle]
+pub extern "C" fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
     //this will only take from remote host 
 
     // need to seprately transfer metadata to the file
@@ -276,7 +289,8 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
 }
 
 
-fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
+#[no_mangle]
+pub extern "C" fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<PathBuf>,remote_cwd:&mut PathBuf){
     //this will only take from local host 
 
     // need to seprately transfer metadata to the file
@@ -313,7 +327,8 @@ fn upload(sftp_client:&mut sftp, entry_to_upload:&str, remote_file_path:Option<P
         println!("not a vaild file");
     }
 }
-fn make_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf) {
+#[no_mangle]
+pub extern "C" fn make_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf) {
     if sftp_client.server_selected{
         let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.clone());
         let abosultepath: PathBuf = current_dir.join(directory_name);
@@ -326,7 +341,8 @@ fn make_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf) 
         fs::create_dir(abosultepath).unwrap(); // need to error handle
     }
 }
-fn remove_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf){
+#[no_mangle]
+pub extern "C" fn remove_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf){
     let current_dir: PathBuf = list_cwd_dir(sftp_client,remote_cwd.clone());
     let abosultepath: PathBuf = current_dir.join(directory_name);
     if check_vaild_dir(sftp_client, &abosultepath){
@@ -344,7 +360,8 @@ fn remove_dir(sftp_client:&mut sftp, directory_name:&str,remote_cwd:&mut PathBuf
         println!("{} does not exist",directory_name);
     }
 }
-fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathBuf){
+#[no_mangle]
+pub extern "C" fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathBuf){
     // need to seprately transfer metadata to the file
     if vaild_file(sftp_client, entry_to_delete, remote_cwd.to_path_buf()){
         let current_dir = list_cwd_dir(sftp_client,remote_cwd.to_path_buf());
@@ -362,7 +379,8 @@ fn remove_file(sftp_client:&mut sftp, entry_to_delete:&str,remote_cwd:&mut PathB
         println!("not a vaild file");
     }
 }
-fn rename_entity(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf, new_file_name:&str){
+#[no_mangle]
+pub extern "C" fn rename_entity(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf, new_file_name:&str){
     let destination_dir:PathBuf = PathBuf::from(".");
     if vaild_file(sftp_client, file_to_move, remote_cwd.to_path_buf())
     || check_vaild_dir(sftp_client, &destination_dir){
@@ -383,7 +401,8 @@ fn rename_entity(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBu
         println!("not a vaild file/dir");
     }
 }
-fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,file_destination:PathBuf, new_file_name:Option<&str>){
+#[no_mangle]
+pub extern "C" fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,file_destination:PathBuf, new_file_name:Option<&str>){
     // can rename the file in the new destination
     let destination_dir:PathBuf = PathBuf::from(file_destination.clone());
     if vaild_file(sftp_client, file_to_move, remote_cwd.to_path_buf())
@@ -415,7 +434,8 @@ fn move_file(sftp_client:&mut sftp, file_to_move:&str,remote_cwd:&mut PathBuf,fi
     }
 }
 
-fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
+#[no_mangle]
+pub extern "C" fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathBuf)
 // could make this return a string it might make it a bit easier to 
 //read outputs when in flutter using c bindings.
     {
