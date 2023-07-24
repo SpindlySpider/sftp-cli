@@ -32,7 +32,7 @@ using c bindings will use flutter for front end
 - mkdir [dir name] [path] - make directory ❌/✅ (path function is not working yet)
 - rmdir [dir name] [path]- remove directory ❌/✅(path function is not working yet)
 - rm [file name] [path]-remove file ✅
-- rename [file/folder name] [new name]- rename file ❌
+- rename [file/folder name] [new name]- rename file ✅
 - download [file/folder name] [local path] - downloads file/folder to local host ❌/✅ (only works for files atm)
 - upload [file/folder name] [remote host path]- uploads file/folder to remote host ❌/✅ (only works for files atm)
-- move [file/folder name] [new destination path] [new name]- moves a file/folder to a new location ❌
+- move [file/folder name] [new destination path] [new name]- moves a file/folder to a new location ❌/✅ (files only atm)
