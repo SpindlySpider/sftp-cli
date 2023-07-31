@@ -1,6 +1,7 @@
 use std::{path::{PathBuf, self, Path}, fs::ReadDir};
 
 use ssh2::{Sftp, Session, FileStat, FileType, Channel};
+#[repr(C)]
 pub struct sftp{
     pub hostname:String,
     pub port:String,
@@ -15,7 +16,7 @@ pub struct sftp{
     pub cli_leader:String,
 
 }
-
+#[repr(C)]
 pub struct file_metadata{
     //used be able to pass filestat type to other functions
     // can add more detials to this area 
