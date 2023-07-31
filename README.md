@@ -1,8 +1,6 @@
 # ssh_sftp
 
-using rust for back end with file exploring and ssh sftp file transfer.
-
-using c bindings will use flutter for front end 
+using rust for a cli for transfering files on a sftp connection
 
 # goals 
 ### goals(main):
