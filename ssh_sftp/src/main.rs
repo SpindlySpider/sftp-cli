@@ -523,13 +523,24 @@ fn sftp_choice(userinput:&Vec<&str>, sftp_client:&mut sftp,remote_cwd:&mut PathB
 
 
 fn main() {
+    let mut hostname:String = String::new();
+    print!("[hostname]");
+    std::io::stdout().flush().unwrap();
+    std::io::stdin().read_line(&mut hostname).expect("failed to read input");
+    let port = rpassword::prompt_password("[input port] ").unwrap();
+
+    let mut username:String = String::new();
+    print!("[username]");
+    std::io::stdout().flush().unwrap();
+    std::io::stdin().read_line(&mut username).expect("failed to read input");
     let password = rpassword::prompt_password("[input password] ").unwrap();
-    //let port = rpassword::prompt_password("[input port] ").unwrap();
-    let port = String::from("17927");
+
+
+
     println!("{},{}",password,port);
-    let mut sftp_client:sftp = sftp_build(String::from("192.168.1.166"),
+    let mut sftp_client:sftp = sftp_build(hostname,
     port,
-    String::from("root"),
+    username,
         password);
     sftp_main(&mut sftp_client);
 }
