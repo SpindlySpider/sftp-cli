@@ -249,8 +249,10 @@ fn download(sftp_client:&mut sftp, entry_to_download:&str, local_file_path:Optio
         //let remote_file_metadata = remote_file.stat().unwrap();
         while loop_alive{
             let bytes_read = remote_file.read_to_end(&mut file_buffer).unwrap();
+
             if bytes_read == 0{
                 //finsihed reading file
+                //IMPORTANT USE PYTHON LIKE YEILD TO DISPLAY STATUS OF DOWNLOAD
                 loop_alive = false;
             }
             else{

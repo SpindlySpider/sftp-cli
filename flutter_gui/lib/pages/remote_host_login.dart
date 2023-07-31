@@ -9,24 +9,27 @@ void main(){
 }
 
 class IpLogin extends StatelessWidget {
-  const IpLogin({super.key});
+  IpLogin({super.key});
+
+  final ipTextEditController = TextEditingController();
+  final portTextEditController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 19, 20, 105),
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 50, 44, 53),
       body: SafeArea(
         child: Center(
           child: Column(children:  [
             //general explaination
-            SizedBox(height: 50,),
+            const SizedBox(height: 50,),
 
-            Text("please enter IP, Port (if not port 22), username and password",
+            const Text("please enter IP, Port (if not port 22), username and password",
             style: TextStyle(color:Color.fromARGB(255, 209, 206, 199),
             fontSize: 16,),
             ),
 
-            SizedBox(height: 50,),
+            const SizedBox(height: 10,),
 
 
 
@@ -35,16 +38,21 @@ class IpLogin extends StatelessWidget {
             
               
             //ip text field
-              MyTextField(),
-              SizedBox(height: 50,),
+              MyTextField(
+                controller:ipTextEditController,
+                hintText: "ip address" ,
+                obscureText: false,
+
+                ),
+              const SizedBox(height: 10,),
             //port text feild
-              MyTextField(),
-              SizedBox(height: 50,),
+              //MyTextField(),
+              const SizedBox(height: 10,),
             //username
-              MyTextField(),
-              SizedBox(height: 50,),
+              //MyTextField(),
+              const SizedBox(height: 10,),
             //password text feild
-              MyTextField(),
+              //MyTextField(),
             //connect button 
               
           ],
