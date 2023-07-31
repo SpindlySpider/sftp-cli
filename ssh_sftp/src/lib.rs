@@ -8,6 +8,7 @@ use std::io::Read;
 use std::io::Write;
 use std::{net::TcpStream,fs::{self, ReadDir},path::{Path, PathBuf},env};
 use rpassword;
+use libc;
 
 #[no_mangle]
 pub extern "C" fn sftp_build(hostname:String,port:String,

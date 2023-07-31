@@ -10,6 +10,6 @@ edition = "2021"
 ssh2 = "0.9.0"
 rpassword = "7.2.0"
 flutter_rust_bridge = "1"
-
+libc = ""
 [lib]
 crate-type = ["staticlib", "cdylib"]
