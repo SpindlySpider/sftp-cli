@@ -1,6 +1,6 @@
-# ssh_sftp
+# sftp cli
 
-using rust for a cli for transfering files on a sftp connection
+using rust for a cli for transfering files over a sftp connection
 
 # goals 
 ### goals(main):
