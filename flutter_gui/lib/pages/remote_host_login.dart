@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_gui/components/my_button.dart";
 import "package:flutter_gui/components/my_textfield.dart";
 
 
@@ -8,11 +9,17 @@ void main(){
 
 }
 
+void startConnection(){
+  print("fdsfsd");
+}
+
 class IpLogin extends StatelessWidget {
   IpLogin({super.key});
 
   final ipTextEditController = TextEditingController();
   final portTextEditController = TextEditingController();
+  final usernameTextEditController = TextEditingController();
+  final passwordTextEditController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +53,31 @@ class IpLogin extends StatelessWidget {
                 ),
               const SizedBox(height: 10,),
             //port text feild
-              //MyTextField(),
+              MyTextField(
+                controller:portTextEditController,
+                hintText: "port" ,
+                obscureText: false,
+
+                ),
               const SizedBox(height: 10,),
             //username
-              //MyTextField(),
+              MyTextField(
+                controller:usernameTextEditController,
+                hintText: "username" ,
+                obscureText: false,
+
+                ),
               const SizedBox(height: 10,),
             //password text feild
-              //MyTextField(),
-            //connect button 
+              MyTextField(
+                controller:passwordTextEditController,
+                hintText: "password" ,
+                obscureText: true,
+                ),
+            //connect button
+            const SizedBox(height: 10,),
+
+            const MyButton(buttonText: "connect",onTap: startConnection,),
               
           ],
           ),
