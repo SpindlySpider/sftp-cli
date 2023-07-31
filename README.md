@@ -7,8 +7,7 @@ using rust for a cli for transfering files on a sftp connection
 
 * cli file transfer
 * sql databse(previous connections and relavitve file path)
-* gui implimenation
-* export to mobile using flutter front end
+
 
 ### side goals:
 
